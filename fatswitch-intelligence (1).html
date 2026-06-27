@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FatSwitch Intelligence Platform</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0b0b10;color:#e4e4f0;min-height:100vh;overflow:hidden}
+:root{--a:#22d3a0;--a2:#f97316;--a3:#a78bfa;--s:#141418;--s2:#1c1c24;--s3:#24242f;--bd:rgba(255,255,255,0.07);--bdh:rgba(255,255,255,0.14);--t:#e4e4f0;--tm:#9898b0;--ts:#55556a;--r:10px;--rl:14px}
+.wrap{display:flex;height:100vh;overflow:hidden}
+/* SIDEBAR */
+.sb{width:220px;flex-shrink:0;background:var(--s);border-right:1px solid var(--bd);display:flex;flex-direction:column;overflow-y:auto}
+.sb-logo{padding:18px 16px 14px;border-bottom:1px solid var(--bd)}
+.sb-logo-tag{font-size:9px;font-weight:700;color:var(--a);letter-spacing:.15em;text-transform:uppercase}
+.sb-logo-name{font-size:20px;font-weight:800;color:var(--t);margin-top:2px;letter-spacing:-.5px}
+.sb-logo-name span{color:var(--a)}
+.sb-sec{font-size:9px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:.12em;padding:16px 14px 5px}
+.sb-item{display:flex;align-items:center;gap:9px;padding:9px 14px;font-size:13px;color:var(--tm);cursor:pointer;transition:all .15s;border-left:2px solid transparent;user-select:none}
+.sb-item:hover{color:var(--t);background:var(--s2)}
+.sb-item.on{color:var(--a);border-left-color:var(--a);background:rgba(34,211,160,.07);font-weight:600}
+.sb-item i{font-size:15px;flex-shrink:0}
+.sb-item .badge{margin-left:auto;font-size:9px;font-weight:700;background:var(--a2);color:#fff;padding:1px 6px;border-radius:4px}
+.sb-apibox{padding:12px 14px;border-top:1px solid var(--bd);background:rgba(34,211,160,.03)}
+.sb-apibox-lbl{font-size:9px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:.1em;margin-bottom:7px;display:flex;align-items:center;gap:5px}
+.sb-apibox-lbl i{font-size:11px;color:var(--a)}
+.sb-api-inp{width:100%;background:var(--s2);border:1px solid var(--bd);border-radius:7px;padding:7px 10px;color:var(--t);font-size:11px;outline:none;font-family:inherit;margin-bottom:6px}
+.sb-api-inp:focus{border-color:var(--a)}
+.sb-api-inp::placeholder{color:var(--ts)}
+.sb-api-btn{width:100%;background:var(--a);color:#061410;border:none;border-radius:7px;padding:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+.sb-api-btn:hover{opacity:.85}
+.sb-api-status{font-size:10px;margin-top:5px;text-align:center;min-height:14px}
+.sb-foot{padding:10px 14px 14px;border-top:1px solid var(--bd)}
+.sb-live{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--tm)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--a);animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+/* MAIN */
+.main{flex:1;overflow-y:auto;background:#0b0b10}
+.page{display:none}.page.on{display:block}
+/* PAGE HEADER */
+.ph{padding:22px 26px 0;display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
+.ph-left h1{font-size:20px;font-weight:700;color:var(--t);letter-spacing:-.3px}
+.ph-left p{font-size:12px;color:var(--tm);margin-top:4px;line-height:1.5}
+.ph-btn{display:flex;align-items:center;gap:6px;background:var(--a);color:#061410;border:none;border-radius:var(--r);padding:9px 16px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;margin-left:16px;font-family:inherit}
+.ph-btn:hover{opacity:.85}
+.p26{padding:0 26px 30px}
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.stats.s3{grid-template-columns:repeat(3,1fr)}
+.stat{background:var(--s);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px}
+.stat-lbl{font-size:9px;color:var(--tm);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;font-weight:700}
+.stat-val{font-size:23px;font-weight:700;color:var(--t)}
+.stat-d{font-size:11px;color:var(--a);margin-top:3px}
+.stat-d.warn{color:var(--a2)}.stat-d.danger{color:#ef4444}
+/* FILTERS */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.si{position:relative}
+.si i{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--tm);pointer-events:none}
+.si input{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:7px 10px 7px 28px;color:var(--t);font-size:12px;outline:none;width:200px;font-family:inherit}
+.si input::placeholder{color:var(--ts)}
+select{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:7px 10px;color:var(--t);font-size:12px;outline:none;cursor:pointer;font-family:inherit}
+/* CHIPS */
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.chip{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid var(--bd);background:var(--s2);color:var(--tm);cursor:pointer;transition:all .15s;user-select:none}
+.chip:hover{border-color:var(--a);color:var(--a)}
+.chip.on{background:rgba(34,211,160,.1);border-color:var(--a);color:var(--a)}
+/* TABS */
+.tabs{display:flex;gap:2px;margin-bottom:16px}
+.tab{padding:6px 14px;font-size:12px;border-radius:8px;cursor:pointer;color:var(--tm);transition:all .15s;user-select:none;font-weight:500}
+.tab:hover{color:var(--t);background:var(--s2)}
+.tab.on{color:var(--t);background:var(--s2);font-weight:700}
+/* TREND CARDS */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.tc{background:var(--s);border:1px solid var(--bd);border-radius:var(--r);padding:16px;cursor:pointer;transition:all .18s;position:relative;overflow:hidden}
+.tc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--a);opacity:0;transition:opacity .18s}
+.tc:hover{border-color:rgba(34,211,160,.25);transform:translateY(-1px)}
+.tc:hover::after{opacity:1}
+.tc.exp::after{background:var(--a2);opacity:1}
+.tc.exp{border-color:rgba(249,115,22,.18)}
+.tc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.tc-emoji{font-size:26px;line-height:1}
+.sbadge{font-size:9px;font-weight:700;letter-spacing:.05em;padding:3px 7px;border-radius:4px;text-transform:uppercase}
+.sbadge.exploding{background:rgba(249,115,22,.15);color:#f97316;border:1px solid rgba(249,115,22,.3)}
+.sbadge.hot{background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.25)}
+.sbadge.rising{background:rgba(34,211,160,.1);color:#22d3a0;border:1px solid rgba(34,211,160,.25)}
+.tc-name{font-size:14px;font-weight:600;color:var(--t);margin-bottom:3px}
+.tc-meta{font-size:11px;color:var(--tm);margin-bottom:10px}
+.sc-row{display:flex;gap:6px;margin-bottom:10px}
+.sc{background:var(--s2);border-radius:6px;padding:3px 7px;font-size:10px;font-weight:600;color:var(--tm)}
+.sc span{color:var(--t)}
+.pbar{height:3px;background:var(--s3);border-radius:2px;margin-bottom:3px}
+.pfill{height:100%;border-radius:2px;background:var(--a)}
+.tc.exp .pfill{background:var(--a2)}
+.plbl{display:flex;justify-content:space-between;font-size:10px;color:var(--ts);margin-bottom:8px}
+.ptags{display:flex;gap:4px;flex-wrap:wrap}
+.ptag{font-size:9px;padding:2px 6px;border-radius:3px;background:var(--s3);color:var(--tm);font-weight:600}
+/* DETAIL PANEL */
+.panel-wrap{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}
+.detail-card{background:var(--s);border:1px solid var(--bd);border-radius:var(--rl);padding:20px;display:none}
+.detail-card.on{display:block}
+.dc-emoji{font-size:48px;text-align:center;margin-bottom:12px}
+.dc-name{font-size:18px;font-weight:700;color:var(--t);text-align:center;margin-bottom:4px}
+.dc-meta{font-size:12px;color:var(--tm);text-align:center;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
+.sc3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.sc3-item{background:var(--s2);border-radius:var(--r);padding:10px;text-align:center}
+.sc3-val{font-size:20px;font-weight:700}
+.sc3-lbl{font-size:9px;color:var(--tm);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.why-box{background:var(--s2);border-radius:var(--r);padding:12px 14px;margin-bottom:12px}
+.box-h{font-size:9px;text-transform:uppercase;letter-spacing:.09em;color:var(--tm);font-weight:700;margin-bottom:8px}
+.why-tag{display:inline-flex;font-size:11px;background:var(--s3);border-radius:20px;padding:3px 9px;margin:2px;color:var(--t)}
+.fs-box{background:rgba(34,211,160,.05);border:1px solid rgba(34,211,160,.18);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.fs-h{font-size:9px;text-transform:uppercase;letter-spacing:.09em;color:var(--a);font-weight:700;margin-bottom:10px}
+.cal-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cal-b{text-align:center}
+.cal-n{font-size:22px;font-weight:700}
+.cal-n.r{color:#ef4444}.cal-n.g{color:var(--a)}
+.cal-lbl{font-size:9px;color:var(--tm);text-transform:uppercase;margin-top:2px}
+.cal-arrow{font-size:16px;color:var(--ts)}
+.saved-pill{background:rgba(34,211,160,.1);border-radius:6px;padding:8px;text-align:center;font-size:12px;font-weight:600;color:var(--a)}
+.steps-list{margin-top:8px}
+.step-r{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start}
+.step-n{width:18px;height:18px;border-radius:50%;background:rgba(34,211,160,.15);color:var(--a);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-t{font-size:11px;color:var(--t);line-height:1.6}
+.gen-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.gen-btn{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;font-size:11px;color:var(--tm);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s;font-family:inherit}
+.gen-btn:hover{border-color:var(--a);color:var(--a);background:rgba(34,211,160,.05)}
+.gen-btn i{font-size:13px}
+.no-sel{background:var(--s);border:1px solid var(--bd);border-radius:var(--rl);padding:50px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.no-sel i{font-size:36px;color:var(--ts)}
+.no-sel p{font-size:13px;color:var(--tm);line-height:1.6}
+.ai-loading{display:none;align-items:center;gap:8px;color:var(--a);font-size:12px;padding:10px 0}
+.ai-loading.on{display:flex}
+.dots span{animation:blink 1.4s infinite;display:inline-block}
+.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:0}40%{opacity:1}}
+.ai-out{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:12px 14px;font-size:12px;line-height:1.7;color:var(--t);margin-top:10px;display:none;white-space:pre-wrap}
+.ai-out.on{display:block}
+/* MAP */
+.map-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:10px;margin-bottom:20px}
+.mc{background:var(--s);border:1px solid var(--bd);border-radius:var(--r);padding:14px;cursor:pointer;transition:all .15s}
+.mc:hover{border-color:rgba(34,211,160,.3);transform:translateY(-1px)}
+.mc.sel{border-color:var(--a);background:rgba(34,211,160,.04)}
+.mc-flag{font-size:28px;margin-bottom:8px}
+.mc-country{font-size:14px;font-weight:600;color:var(--t);margin-bottom:3px}
+.mc-top{font-size:11px;color:var(--tm);margin-bottom:6px}
+.mc-count{font-size:10px;color:var(--a);font-weight:600}
+.map-detail{background:var(--s);border:1px solid var(--bd);border-radius:var(--rl);padding:20px;display:none}
+.map-d-h{font-size:15px;font-weight:700;color:var(--t);margin-bottom:14px}
+.map-food-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--bd)}
+.map-food-row:last-child{border-bottom:none}
+.mfr-left{display:flex;align-items:center;gap:8px}
+.mfr-num{width:22px;font-size:10px;color:var(--ts);font-weight:700;text-align:right;flex-shrink:0}
+.mfr-emoji{font-size:18px}
+.mfr-name{font-size:12px;color:var(--t);font-weight:600}
+.mfr-cat{font-size:10px;color:var(--tm)}
+.mfr-score{font-size:13px;font-weight:700;color:var(--a)}
+/* USA HUB */
+.usa-tabs{display:flex;gap:2px;margin-bottom:20px;background:var(--s2);border-radius:var(--r);padding:4px;width:fit-content}
+.usa-tab{padding:7px 16px;font-size:12px;border-radius:8px;cursor:pointer;color:var(--tm);transition:all .15s;font-weight:600;user-select:none}
+.usa-tab.on{background:var(--s);color:var(--t)}
+.usa-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.usa-item{background:var(--s);border:1px solid var(--bd);border-radius:var(--r);padding:11px 13px;display:flex;align-items:center;gap:10px}
+.usa-rank{font-size:11px;font-weight:700;color:var(--ts);min-width:20px;text-align:right;flex-shrink:0}
+.usa-emoji{font-size:20px;flex-shrink:0}
+.usa-info{flex:1;min-width:0}
+.usa-name{font-size:12px;font-weight:600;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.usa-sub{font-size:10px;color:var(--tm);margin-top:1px}
+.usa-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
+.usa-score{font-size:12px;font-weight:700;color:var(--a)}
+.trend-mini{display:flex;align-items:flex-end;gap:2px;height:18px}
+.tbar{width:3px;background:var(--a);border-radius:1px}
+/* PREDICTOR */
+.predictor-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pred-card{background:var(--s);border:1px solid var(--bd);border-radius:var(--r);padding:16px}
+.pred-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.09em;font-weight:700;margin-bottom:12px}
+.pred-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bd)}
+.pred-item:last-child{border-bottom:none}
+.pred-left{display:flex;align-items:center;gap:7px}
+.pred-emoji{font-size:16px}
+.pred-name{font-size:12px;color:var(--t);font-weight:500}
+.pred-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px}
+.pred-badge.emerging{background:rgba(167,139,250,.12);color:#a78bfa;border:1px solid rgba(167,139,250,.25)}
+.pred-badge.rising2{background:rgba(34,211,160,.1);color:var(--a);border:1px solid rgba(34,211,160,.25)}
+.pred-badge.exploding{background:rgba(249,115,22,.12);color:#f97316;border:1px solid rgba(249,115,22,.28)}
+.pred-badge.saturated{background:rgba(100,100,120,.15);color:#888;border:1px solid rgba(100,100,120,.3)}
+/* FAST FOOD */
+.ff-wrap{max-width:660px}
+.ff-irow{display:flex;gap:8px;margin-bottom:20px}
+.ff-inp{flex:1;background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:11px 15px;color:var(--t);font-size:13px;outline:none;font-family:inherit}
+.ff-inp::placeholder{color:var(--ts)}
+.ff-btn{background:var(--a);color:#061410;border:none;border-radius:var(--r);padding:11px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.ff-btn:hover{opacity:.85}
+.qchips{display:flex;gap:6px;flex-wrap:wrap}
+.qchip{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid var(--bd);background:var(--s2);color:var(--tm);cursor:pointer;transition:all .15s;user-select:none}
+.qchip:hover{border-color:var(--a);color:var(--a)}
+.ff-rg{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-top:20px}
+.ffc{background:var(--s);border:1px solid var(--bd);border-radius:var(--r);padding:16px}
+.ffc.healthy{border-color:rgba(34,211,160,.25)}
+.ffc-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--tm);font-weight:700;margin-bottom:6px}
+.ffc-name{font-size:15px;font-weight:700;margin-bottom:6px}
+.ffc-cal{font-size:20px;font-weight:700;margin-bottom:8px}
+.ffc-desc{font-size:11px;color:var(--tm);line-height:1.6;margin-bottom:10px}
+.ff-arrow{font-size:24px;color:var(--a);text-align:center}
+.ff-savings{grid-column:1/-1;background:rgba(34,211,160,.07);border:1px solid rgba(34,211,160,.18);border-radius:var(--r);padding:12px;text-align:center;font-size:12px;font-weight:600;color:var(--a)}
+/* CREATOR */
+.cr-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.cr-card{background:var(--s);border:1px solid var(--bd);border-radius:var(--r);padding:14px}
+.cr-card-h{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.cr-card-h i{font-size:13px;color:var(--a)}
+.cr-card-h span{font-size:9px;text-transform:uppercase;letter-spacing:.09em;color:var(--tm);font-weight:700}
+.cr-card-body{font-size:11px;color:var(--t);line-height:1.7}
+.cr-copy{margin-top:8px;display:flex;justify-content:flex-end}
+.copy-btn{background:var(--s2);border:1px solid var(--bd);border-radius:5px;padding:3px 9px;font-size:10px;color:var(--tm);cursor:pointer;font-family:inherit}
+.copy-btn:hover{color:var(--t)}
+/* STEAL */
+.steal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.improve-row{display:flex;gap:6px;font-size:11px;color:var(--tm);padding:3px 0}
+.improve-row span{color:var(--a);flex-shrink:0;font-weight:700}
+/* ADMIN */
+.admin-grid{display:grid;grid-template-columns:1fr 300px;gap:16px}
+.admin-table{background:var(--s);border:1px solid var(--bd);border-radius:var(--rl);overflow:hidden}
+.admin-table table{width:100%;border-collapse:collapse;table-layout:fixed}
+.admin-table th{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--tm);font-weight:700;padding:10px 14px;border-bottom:1px solid var(--bd);text-align:left;background:var(--s2)}
+.admin-table td{padding:10px 14px;font-size:11px;color:var(--t);border-bottom:1px solid var(--bd);vertical-align:middle}
+.admin-table tr:last-child td{border-bottom:none}
+.admin-table tr:hover td{background:rgba(255,255,255,.02)}
+.atbl-acts{display:flex;gap:5px}
+.atbl-btn{background:var(--s3);border:1px solid var(--bd);border-radius:5px;padding:3px 8px;font-size:10px;color:var(--tm);cursor:pointer;display:flex;align-items:center;gap:3px;font-family:inherit}
+.atbl-btn:hover{color:var(--t)}
+.atbl-btn.del:hover{color:#ef4444;border-color:rgba(239,68,68,.3)}
+.admin-side{display:flex;flex-direction:column;gap:12px}
+.admin-form{background:var(--s);border:1px solid var(--bd);border-radius:var(--rl);padding:18px}
+.admin-form h3{font-size:13px;font-weight:700;color:var(--t);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.form-row{margin-bottom:10px}
+.form-row label{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--tm);font-weight:700;display:block;margin-bottom:5px}
+.form-row input,.form-row select{width:100%;background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;color:var(--t);font-size:12px;outline:none;font-family:inherit}
+.form-submit{width:100%;background:var(--a);color:#061410;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:700;cursor:pointer;margin-top:4px;font-family:inherit}
+.admin-stats-card{background:var(--s);border:1px solid var(--bd);border-radius:var(--rl);padding:16px}
+.admin-stats-card h3{font-size:13px;font-weight:700;color:var(--t);margin-bottom:12px}
+.astat{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--bd);font-size:12px}
+.astat:last-child{border-bottom:none}
+.astat-lbl{color:var(--tm)}.astat-val{font-weight:700;color:var(--t)}
+/* SETTINGS */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.set-card{background:var(--s);border:1px solid var(--bd);border-radius:var(--rl);padding:18px}
+.set-card h3{font-size:13px;font-weight:700;color:var(--t);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.set-card h3 i{font-size:15px;color:var(--a)}
+.set-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--bd);font-size:12px;gap:12px}
+.set-row:last-child{border-bottom:none}
+.set-lbl{color:var(--tm);flex:1}
+.toggle{width:36px;height:20px;background:var(--s3);border-radius:10px;position:relative;cursor:pointer;flex-shrink:0;border:1px solid var(--bd);transition:background .2s}
+.toggle.on{background:var(--a)}
+.toggle::after{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;top:2px;left:2px;transition:left .2s}
+.toggle.on::after{left:18px}
+.set-input{background:var(--s2);border:1px solid var(--bd);border-radius:6px;padding:5px 9px;color:var(--t);font-size:11px;outline:none;font-family:inherit}
+.set-select{background:var(--s2);border:1px solid var(--bd);border-radius:6px;padding:5px 8px;color:var(--t);font-size:11px;outline:none;cursor:pointer;font-family:inherit}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- SIDEBAR -->
+  <div class="sb">
+    <div class="sb-logo">
+      <div class="sb-logo-tag">Intelligence</div>
+      <div class="sb-logo-name">Fat<span>Switch</span></div>
+    </div>
+    <div class="sb-sec">Discover</div>
+    <div class="sb-item on" onclick="go('trends',this)"><i class="ti ti-flame"></i>Trend Feed<span class="badge">50</span></div>
+    <div class="sb-item" onclick="go('map',this)"><i class="ti ti-map-2"></i>Global Map</div>
+    <div class="sb-item" onclick="go('usa',this)"><i class="ti ti-brand-tiktok"></i>USA Hub</div>
+    <div class="sb-item" onclick="go('predictor',this)"><i class="ti ti-crystal-ball"></i>AI Predictor</div>
+    <div class="sb-sec">Generate</div>
+    <div class="sb-item" onclick="go('fastfood',this)"><i class="ti ti-building-store"></i>Fast Food Converter</div>
+    <div class="sb-item" onclick="go('creator',this)"><i class="ti ti-pencil"></i>Creator Mode</div>
+    <div class="sb-item" onclick="go('steal',this)"><i class="ti ti-binoculars"></i>Steal This Trend</div>
+    <div class="sb-sec">Admin</div>
+    <div class="sb-item" onclick="go('admin',this)"><i class="ti ti-database"></i>Manage Trends</div>
+    <div class="sb-item" onclick="go('settings',this)"><i class="ti ti-settings"></i>Settings</div>
+    <!-- API KEY BOX — always visible -->
+    <div class="sb-apibox">
+      <div class="sb-apibox-lbl"><i class="ti ti-key"></i> Anthropic API Key</div>
+      <input class="sb-api-inp" id="sb-api-key" type="password" placeholder="sk-ant-api03-..." oninput="apiKey=this.value.trim()">
+      <button class="sb-api-btn" onclick="saveKey()">Save & Activate</button>
+      <div class="sb-api-status" id="sb-status"></div>
+    </div>
+    <div class="sb-foot">
+      <div class="sb-live"><div class="dot"></div>Live scanning 5 platforms</div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+
+    <!-- TREND FEED -->
+    <div class="page on" id="pg-trends">
+      <div class="ph">
+        <div class="ph-left"><h1>🔥 Trend Feed</h1><p>50 viral foods trending worldwide — discover and generate healthier versions instantly</p></div>
+        <button class="ph-btn" onclick="renderFeed()"><i class="ti ti-refresh" style="font-size:13px"></i> Refresh</button>
+      </div>
+      <div class="p26">
+        <div class="stats">
+          <div class="stat"><div class="stat-lbl">Trends tracked</div><div class="stat-val">50</div><div class="stat-d">↑ 12 new today</div></div>
+          <div class="stat"><div class="stat-lbl">Exploding now</div><div class="stat-val" id="exp-count">8</div><div class="stat-d warn">Peak momentum</div></div>
+          <div class="stat"><div class="stat-lbl">Countries</div><div class="stat-val">11</div><div class="stat-d">Global coverage</div></div>
+          <div class="stat"><div class="stat-lbl">Platforms</div><div class="stat-val">5</div><div class="stat-d">TikTok · YT · IG · Pin · Reddit</div></div>
+        </div>
+        <div class="filters">
+          <div class="si"><i class="ti ti-search"></i><input id="fsearch" placeholder="Search foods..." oninput="renderFeed()"></div>
+          <select id="fcountry" onchange="renderFeed()"><option value="">All countries</option><option>USA</option><option>Korea</option><option>Japan</option><option>Thailand</option><option>Indonesia</option><option>UK</option><option>Turkey</option><option>India</option><option>Australia</option></select>
+          <select id="fstatus" onchange="renderFeed()"><option value="">All status</option><option>Exploding</option><option>Hot</option><option>Rising</option></select>
+          <select id="fplatform" onchange="renderFeed()"><option value="">All platforms</option><option>TikTok</option><option>YouTube</option><option>Instagram</option><option>Pinterest</option><option>Reddit</option></select>
+        </div>
+        <div class="chips" id="cat-chips">
+          <div class="chip on" onclick="setCat('',this)">All</div>
+          <div class="chip" onclick="setCat('Street Food',this)">Street Food</div>
+          <div class="chip" onclick="setCat('Dessert',this)">Dessert</div>
+          <div class="chip" onclick="setCat('Protein',this)">Protein</div>
+          <div class="chip" onclick="setCat('Fast Food',this)">Fast Food</div>
+          <div class="chip" onclick="setCat('Keto',this)">Keto</div>
+          <div class="chip" onclick="setCat('Healthy',this)">Healthy</div>
+          <div class="chip" onclick="setCat('Carnivore',this)">Carnivore</div>
+          <div class="chip" onclick="setCat('Snack',this)">Snack</div>
+          <div class="chip" onclick="setCat('Drinks',this)">Drinks</div>
+        </div>
+        <div class="tabs">
+          <div class="tab on" onclick="setFeedTab('all',this)">All trends</div>
+          <div class="tab" onclick="setFeedTab('exploding',this)">🔥 Exploding</div>
+          <div class="tab" onclick="setFeedTab('hot',this)">Hot</div>
+          <div class="tab" onclick="setFeedTab('rising',this)">Rising</div>
+        </div>
+        <div class="panel-wrap">
+          <div class="tgrid" id="feed-grid"></div>
+          <div>
+            <div class="no-sel" id="no-sel"><i class="ti ti-salad"></i><p>Click any food card<br>to see intelligence,<br>FatSwitch recipe &amp; content tools</p></div>
+            <div class="detail-card" id="detail-card"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GLOBAL MAP -->
+    <div class="page" id="pg-map">
+      <div class="ph"><div class="ph-left"><h1>🌍 Global Food Map</h1><p>Click any country to see its top viral foods right now</p></div></div>
+      <div class="p26">
+        <div class="map-grid" id="map-grid"></div>
+        <div class="map-detail" id="map-detail"><div class="map-d-h" id="map-d-h"></div><div id="map-d-list"></div></div>
+      </div>
+    </div>
+
+    <!-- USA HUB -->
+    <div class="page" id="pg-usa">
+      <div class="ph"><div class="ph-left"><h1>🇺🇸 USA Trend Hub</h1><p>Top trending foods in America — filtered by platform</p></div></div>
+      <div class="p26">
+        <div class="usa-tabs"><div class="usa-tab on" onclick="setUsaTab('tiktok',this)">TikTok</div><div class="usa-tab" onclick="setUsaTab('instagram',this)">Instagram</div><div class="usa-tab" onclick="setUsaTab('youtube',this)">YouTube</div><div class="usa-tab" onclick="setUsaTab('pinterest',this)">Pinterest</div><div class="usa-tab" onclick="setUsaTab('reddit',this)">Reddit</div></div>
+        <div class="usa-list" id="usa-list"></div>
+      </div>
+    </div>
+
+    <!-- AI PREDICTOR -->
+    <div class="page" id="pg-predictor">
+      <div class="ph"><div class="ph-left"><h1>🔮 AI Trend Predictor</h1><p>Predict which foods will go viral next — before the crowd arrives</p></div></div>
+      <div class="p26">
+        <div class="stats s3">
+          <div class="stat"><div class="stat-lbl">Emerging signals</div><div class="stat-val">23</div><div class="stat-d">↑ 6 new this week</div></div>
+          <div class="stat"><div class="stat-lbl">Predicted to explode</div><div class="stat-val">7</div><div class="stat-d warn">Next 30 days</div></div>
+          <div class="stat"><div class="stat-lbl">Trend decay detected</div><div class="stat-val">4</div><div class="stat-d danger">Avoid investing</div></div>
+        </div>
+        <div class="predictor-grid" id="predictor-grid"></div>
+      </div>
+    </div>
+
+    <!-- FAST FOOD -->
+    <div class="page" id="pg-fastfood">
+      <div class="ph"><div class="ph-left"><h1>🏪 Fast Food Converter</h1><p>Enter any fast food item — get a healthier homemade version instantly</p></div></div>
+      <div class="p26 ff-wrap">
+        <div class="ff-irow"><input class="ff-inp" id="ff-inp" placeholder="e.g. Big Mac, Crunchwrap Supreme, Costco Chicken Bake..."><button class="ff-btn" onclick="doFF()">Convert</button></div>
+        <div style="margin-bottom:20px"><div class="box-h" style="margin-bottom:8px">Quick picks</div>
+          <div class="qchips"><div class="qchip" onclick="quickFF('Big Mac')">Big Mac</div><div class="qchip" onclick="quickFF('Crunchwrap Supreme')">Crunchwrap Supreme</div><div class="qchip" onclick="quickFF('Costco Chicken Bake')">Costco Chicken Bake</div><div class="qchip" onclick="quickFF('Spicy Chicken Sandwich')">Spicy Chicken Sandwich</div><div class="qchip" onclick="quickFF('Loaded Fries')">Loaded Fries</div><div class="qchip" onclick="quickFF('Philly Cheesesteak')">Philly Cheesesteak</div><div class="qchip" onclick="quickFF('McFlurry')">McFlurry</div><div class="qchip" onclick="quickFF('Chick-fil-A Sandwich')">Chick-fil-A Sandwich</div></div>
+        </div>
+        <div id="ff-result"></div>
+      </div>
+    </div>
+
+    <!-- CREATOR MODE -->
+    <div class="page" id="pg-creator">
+      <div class="ph"><div class="ph-left"><h1>✍️ Creator Mode</h1><p>Generate a full content suite for any food trend across all platforms</p></div></div>
+      <div class="p26">
+        <div style="background:rgba(34,211,160,.06);border:1px solid rgba(34,211,160,.2);border-radius:var(--r);padding:12px 14px;margin-bottom:20px;font-size:12px;color:var(--tm);line-height:1.6;max-width:660px">
+          <strong style="color:var(--a)">Requires Anthropic API key</strong> — paste your key in the sidebar on the left and click Save. Try <strong style="color:var(--t)">"Protein Ice Cream Bark"</strong> for instant demo without a key.
+        </div>
+        <div style="max-width:660px">
+          <div class="ff-irow"><input class="ff-inp" id="cr-inp" placeholder="Enter a food trend name, e.g. Protein Ice Cream Bark..."><button class="ff-btn" onclick="doCreator()">Generate all</button></div>
+          <div class="box-h" style="margin-bottom:8px">Try these</div>
+          <div class="qchips" style="margin-bottom:16px"><div class="qchip" onclick="quickCr('Protein Ice Cream Bark')">Protein Ice Cream Bark</div><div class="qchip" onclick="quickCr('Dubai Chocolate Bar')">Dubai Chocolate Bar</div><div class="qchip" onclick="quickCr('Smash Burger')">Smash Burger</div><div class="qchip" onclick="quickCr('Birria Tacos')">Birria Tacos</div></div>
+        </div>
+        <div class="ai-loading" id="cr-load"><i class="ti ti-robot" style="font-size:16px"></i> Generating content suite <span class="dots"><span>.</span><span>.</span><span>.</span></span></div>
+        <div class="cr-grid" id="cr-grid" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- STEAL THIS TREND -->
+    <div class="page" id="pg-steal">
+      <div class="ph"><div class="ph-left"><h1>🔭 Steal This Trend</h1><p>Competitive research — find what's viral and outcompete it with better content</p></div></div>
+      <div class="p26"><div class="steal-grid" id="steal-grid"></div></div>
+    </div>
+
+    <!-- ADMIN -->
+    <div class="page" id="pg-admin">
+      <div class="ph">
+        <div class="ph-left"><h1>⚙️ Manage Trends</h1><p>Add, edit, approve, or remove food trends from the platform</p></div>
+        <button class="ph-btn"><i class="ti ti-plus" style="font-size:13px"></i> Add trend</button>
+      </div>
+      <div class="p26">
+        <div class="admin-grid">
+          <div class="admin-table">
+            <table><thead><tr><th style="width:35%">Food</th><th style="width:15%">Status</th><th style="width:10%">Score</th><th style="width:16%">Country</th><th style="width:24%">Actions</th></tr></thead>
+            <tbody id="admin-tbody"></tbody></table>
+          </div>
+          <div class="admin-side">
+            <div class="admin-form">
+              <h3><i class="ti ti-plus" style="font-size:14px;color:var(--a)"></i> Add new trend</h3>
+              <div class="form-row"><label>Food name</label><input placeholder="e.g. Birria Ramen"></div>
+              <div class="form-row"><label>Country</label><select><option>USA</option><option>Korea</option><option>Japan</option><option>Indonesia</option><option>Thailand</option><option>UK</option><option>Turkey</option><option>India</option></select></div>
+              <div class="form-row"><label>Category</label><select><option>Street Food</option><option>Dessert</option><option>Protein</option><option>Keto</option><option>Fast Food</option><option>Healthy</option><option>Carnivore</option><option>Snack</option></select></div>
+              <div class="form-row"><label>Status</label><select><option>Rising</option><option>Hot</option><option>Exploding</option></select></div>
+              <div class="form-row"><label>Trend score (0–100)</label><input type="number" placeholder="85" min="0" max="100"></div>
+              <button class="form-submit">Add trend</button>
+            </div>
+            <div class="admin-stats-card">
+              <h3>Platform breakdown</h3>
+              <div class="astat"><span class="astat-lbl">TikTok trends</span><span class="astat-val">34</span></div>
+              <div class="astat"><span class="astat-lbl">Instagram trends</span><span class="astat-val">28</span></div>
+              <div class="astat"><span class="astat-lbl">YouTube trends</span><span class="astat-val">19</span></div>
+              <div class="astat"><span class="astat-lbl">Pinterest trends</span><span class="astat-val">15</span></div>
+              <div class="astat"><span class="astat-lbl">Reddit trends</span><span class="astat-val">11</span></div>
+              <div class="astat"><span class="astat-lbl" style="color:var(--a2)">Pending approval</span><span class="astat-val" style="color:var(--a2)">6</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="pg-settings">
+      <div class="ph"><div class="ph-left"><h1>⚙️ Settings</h1><p>Configure scan frequency, filters, and display preferences</p></div></div>
+      <div class="p26">
+        <div class="settings-grid">
+          <div class="set-card">
+            <h3><i class="ti ti-adjustments"></i> Scan settings</h3>
+            <div class="set-row"><span class="set-lbl">Auto-refresh trends</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="set-row"><span class="set-lbl">Refresh interval</span><select class="set-select"><option>Every 6 hours</option><option>Every 12 hours</option><option>Daily</option></select></div>
+            <div class="set-row"><span class="set-lbl">Scan TikTok</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="set-row"><span class="set-lbl">Scan Instagram</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="set-row"><span class="set-lbl">Scan YouTube</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="set-row"><span class="set-lbl">Scan Pinterest</span><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+            <div class="set-row"><span class="set-lbl">Scan Reddit</span><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+          </div>
+          <div class="set-card">
+            <h3><i class="ti ti-filter"></i> Content filters</h3>
+            <div class="set-row"><span class="set-lbl">Halal-friendly only</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="set-row"><span class="set-lbl">Show carnivore trends</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="set-row"><span class="set-lbl">Show keto trends</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="set-row"><span class="set-lbl">Minimum trend score</span><input class="set-input" type="number" value="70" style="width:70px"></div>
+            <div class="set-row"><span class="set-lbl">Default country</span><select class="set-select"><option>Global</option><option>Indonesia</option><option>USA</option><option>Korea</option></select></div>
+          </div>
+          <div class="set-card">
+            <h3><i class="ti ti-palette"></i> Display</h3>
+            <div class="set-row"><span class="set-lbl">Dark mode</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="set-row"><span class="set-lbl">Compact card view</span><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+            <div class="set-row"><span class="set-lbl">Show calorie data</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="set-row"><span class="set-lbl">Show viral scores</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+            <div class="set-row"><span class="set-lbl">FatSwitch branding</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          </div>
+          <div class="set-card">
+            <h3><i class="ti ti-api"></i> External APIs</h3>
+            <div class="set-row"><span class="set-lbl">YouTube Data API</span><input class="set-input" style="width:160px" placeholder="AIza... (optional)"></div>
+            <div class="set-row"><span class="set-lbl">TikTok Research API</span><input class="set-input" style="width:160px" placeholder="Not connected"></div>
+            <div class="set-row"><span class="set-lbl">Pinterest API</span><input class="set-input" style="width:160px" placeholder="Not connected"></div>
+            <div class="set-row"><span class="set-lbl">Mapbox token</span><input class="set-input" style="width:160px" placeholder="pk.eyJ1... (optional)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /wrap -->
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────
+const FOODS=[
+  {name:'Protein Ice Cream Bark',emoji:'🍦',country:'USA',flag:'🇺🇸',cat:'Protein',status:'Exploding',trend:96,growth:94,viral:98,platforms:['TikTok','Instagram','Pinterest'],cals:320,sw:180,why:['High protein visuals','3-ingredient recipe','Freezer ASMR content','Satisfying crunch factor'],recipe:['Mix Greek yogurt + protein powder + peanut butter until smooth','Spread flat on a parchment-lined baking tray','Top with berries and dark chocolate chips','Freeze 2 hours — break into shards and serve cold']},
+  {name:'Tteokbokki Carbonara',emoji:'🍜',country:'Korea',flag:'🇰🇷',cat:'Street Food',status:'Exploding',trend:94,growth:91,viral:96,platforms:['TikTok','YouTube','Instagram'],cals:780,sw:420,why:['Korean-Italian fusion novelty','Cheese pull videos go viral','Spicy + creamy contrast','Restaurant chains jumping in'],recipe:['Boil rice cakes until soft and chewy','Make sauce: gochujang + cream + parmesan + egg yolk','Toss tteok in sauce over low heat','Top with crispy bacon and extra parmesan cheese']},
+  {name:'Dubai Chocolate Bar',emoji:'🍫',country:'UK',flag:'🇬🇧',cat:'Dessert',status:'Exploding',trend:93,growth:97,viral:99,platforms:['TikTok','Instagram','Pinterest'],cals:520,sw:280,why:['Pistachio + kataifi crunch texture','Satisfying chocolate snap videos','Luxury food aesthetic','Celebrity features and endorsements'],recipe:['Melt 85% dark chocolate as the outer shell','Mix pistachio paste with toasted kataifi noodles','Fill chocolate mold, freeze 30 minutes','Break open on camera for the iconic reveal']},
+  {name:'Skyr Mousse',emoji:'🍮',country:'UK',flag:'🇬🇧',cat:'Protein',status:'Exploding',trend:91,growth:89,viral:93,platforms:['TikTok','Pinterest'],cals:180,sw:120,why:['Ultra-high protein dessert hack','Creamy texture like cheesecake','Only 3 ingredients needed','Guilt-free diet culture alternative'],recipe:['Whip skyr with vanilla extract and sweetener','Fold in whipped egg whites for volume and airiness','Chill in fridge 1 hour for mousse consistency','Top with fresh berries and grated dark chocolate']},
+  {name:'Smash Burger',emoji:'🍔',country:'USA',flag:'🇺🇸',cat:'Fast Food',status:'Hot',trend:87,growth:79,viral:88,platforms:['TikTok','YouTube','Reddit'],cals:720,sw:380,why:['Satisfying smash sound on cast iron','Crispy lace edges visual','Technique-based cooking content','Diner nostalgia revival trend'],recipe:['Form loose 3oz beef balls — use 80/20 ratio','Smash hard on screaming-hot cast iron skillet','Add cheese immediately and let it melt perfectly','Double stack with minimal toppings and serve fast']},
+  {name:'Soufflé Pancakes',emoji:'🥞',country:'Japan',flag:'🇯🇵',cat:'Dessert',status:'Hot',trend:88,growth:82,viral:90,platforms:['YouTube','TikTok','Instagram'],cals:450,sw:280,why:['Extreme fluffiness visual appeal','Jiggly food trend still going strong','ASMR egg-whipping sounds','Home baking challenge content'],recipe:['Separate eggs, whip whites to stiff peaks','Gently fold yolk mixture into whites carefully','Cook low and slow on greased pan with lid on','Serve immediately with light honey drizzle']},
+  {name:'Mango Sticky Rice Crêpe',emoji:'🥭',country:'Thailand',flag:'🇹🇭',cat:'Dessert',status:'Hot',trend:86,growth:85,viral:89,platforms:['TikTok','Instagram','Pinterest'],cals:390,sw:220,why:['Tropical street food fusion concept','Color pop of bright mango yellow','Rolling and wrapping ASMR content','Thai food tourism surge content'],recipe:['Make thin crêpe with coconut milk batter','Add warm sticky rice and fresh mango slices','Drizzle sweet coconut cream sauce on top','Roll and slice — show the cross-section for content']},
+  {name:'Birria Quesatacos',emoji:'🌮',country:'USA',flag:'🇺🇸',cat:'Street Food',status:'Hot',trend:85,growth:80,viral:92,platforms:['TikTok','YouTube','Instagram'],cals:650,sw:350,why:['Consommé dip is cinematic content','Red-stained tortilla visual is iconic','Mexican food culture pride content','Street taco authenticity narrative'],recipe:['Slow-braise beef with dried chilis for 4 hours','Dip corn tortilla in the fat layer of consommé','Fill with braised meat and oaxaca cheese','Press on griddle — dip into broth and eat immediately']},
+  {name:'Çiğ Köfte Wrap',emoji:'🌯',country:'Turkey',flag:'🇹🇷',cat:'Street Food',status:'Rising',trend:82,growth:88,viral:84,platforms:['TikTok','Instagram'],cals:310,sw:190,why:['Naturally vegan high-protein food','Vibrant deep red color','Authentic street food storytelling','Middle Eastern food wave growing'],recipe:['Mix bulgur + tomato paste + spices thoroughly','No cooking required — knead by hand 15 minutes','Serve in lettuce wrap with pomegranate molasses','Add fresh lemon, parsley and sumac to finish']},
+  {name:'Martabak Mozza Lava',emoji:'🧇',country:'Indonesia',flag:'🇮🇩',cat:'Street Food',status:'Rising',trend:81,growth:86,viral:83,platforms:['TikTok','YouTube','Instagram'],cals:580,sw:320,why:['Epic cheese lava pull moment','Night street food aesthetic vibe','Indonesian food pride content','Highly customizable toppings'],recipe:['Prepare thick dough and rest for 30 minutes','Pan-fry in generous oil until golden brown','Immediately stuff with fresh mozzarella while hot','Cut to reveal the lava pull — film it in slow motion']},
+  {name:'Loaded Poke Bowl',emoji:'🐟',country:'Australia',flag:'🇦🇺',cat:'Healthy',status:'Rising',trend:80,growth:78,viral:81,platforms:['Instagram','Pinterest','TikTok'],cals:480,sw:350,why:['Rainbow bowl aesthetics for photos','High protein health food positioning','Fully customizable to preferences','Bowl trend still very strong'],recipe:['Base: cauliflower rice or brown rice','Add sushi-grade salmon or tuna cubes','Top: edamame + avocado + cucumber + radish','Drizzle: low-sodium ponzu + sriracha mayo blend']},
+  {name:'Tandoori Cauliflower',emoji:'🥦',country:'India',flag:'🇮🇳',cat:'Healthy',status:'Rising',trend:79,growth:83,viral:80,platforms:['YouTube','Instagram','Pinterest'],cals:180,sw:130,why:['Dramatic char marks visual','Whole-head presentation is striking','Indian spice education content','Flexitarian diet trend growing'],recipe:['Score the whole cauliflower deeply all over','Rub with yogurt and tandoori spice marinade','Marinate minimum 4 hours or overnight','Roast at 220°C for 35 minutes until charred']},
+];
+
+const COUNTRIES=[
+  {flag:'🇺🇸',country:'USA',foods:[{e:'🍦',n:'Protein Ice Cream Bark',c:'Protein',s:96},{e:'🍔',n:'Smash Burger',c:'Fast Food',s:87},{e:'🌮',n:'Birria Quesatacos',c:'Street Food',s:85},{e:'🌶️',n:'Cottage Cheese Ranch Dip',c:'Snack',s:78},{e:'🥩',n:'Reverse-Seared Ribeye',c:'Carnivore',s:75},{e:'🧀',n:'Cottage Cheese Pizza',c:'Keto',s:72}]},
+  {flag:'🇰🇷',country:'Korea',foods:[{e:'🍜',n:'Tteokbokki Carbonara',c:'Street Food',s:94},{e:'🧆',n:'Corn Cheese Hotteok',c:'Snack',s:86},{e:'🥗',n:'Ganjang Gejang Bowl',c:'Healthy',s:79},{e:'🍱',n:'Kimbap Bento Trend',c:'Meal Prep',s:74}]},
+  {flag:'🇯🇵',country:'Japan',foods:[{e:'🥞',n:'Soufflé Pancakes',c:'Dessert',s:88},{e:'🍡',n:'Dango Latte',c:'Drinks',s:82},{e:'🍣',n:'Temaki Hand Roll',c:'Healthy',s:79},{e:'🧁',n:'Matcha Chiffon Cake',c:'Bakery',s:75}]},
+  {flag:'🇹🇭',country:'Thailand',foods:[{e:'🥭',n:'Mango Sticky Rice Crêpe',c:'Dessert',s:86},{e:'🍜',n:'Pad See Ew Protein Bowl',c:'Street Food',s:81},{e:'🍹',n:'Butterfly Pea Lemonade',c:'Drinks',s:78}]},
+  {flag:'🇮🇩',country:'Indonesia',foods:[{e:'🧇',n:'Martabak Mozza Lava',c:'Street Food',s:81},{e:'🍗',n:'Ayam Geprek Protein Bowl',c:'Healthy',s:76},{e:'🧃',n:'Jamu Immunity Shot',c:'Drinks',s:72},{e:'🍚',n:'Nasi Goreng Protein Bowl',c:'Healthy',s:70}]},
+  {flag:'🇬🇧',country:'UK',foods:[{e:'🍫',n:'Dubai Chocolate Bar',c:'Dessert',s:93},{e:'🍮',n:'Skyr Mousse',c:'Protein',s:91},{e:'🥗',n:'Coronation Salad Protein',c:'Healthy',s:74}]},
+  {flag:'🇹🇷',country:'Turkey',foods:[{e:'🌯',n:'Çiğ Köfte Wrap',c:'Street Food',s:82},{e:'🥙',n:'Lahmacun Protein Wrap',c:'Street Food',s:77},{e:'🫙',n:'Cacık Protein Dip',c:'Snack',s:70}]},
+  {flag:'🇮🇳',country:'India',foods:[{e:'🥦',n:'Tandoori Cauliflower',c:'Healthy',s:79},{e:'🫔',n:'Masala Oats Bowl',c:'Healthy',s:74},{e:'🥛',n:'Thandai Protein Shake',c:'Drinks',s:68}]},
+  {flag:'🇦🇺',country:'Australia',foods:[{e:'🐟',n:'Loaded Poke Bowl',c:'Healthy',s:80},{e:'🥑',n:'Avo Toast Protein Upgrade',c:'Healthy',s:73},{e:'☕',n:'Piccolo Latte',c:'Drinks',s:69}]},
+];
+
+const USA_FEEDS={
+  tiktok:[{e:'🍦',n:'Protein Ice Cream Bark',s:96,d:'#1 trending recipe format'},{e:'🍫',n:'Dubai Chocolate Bar',s:93,d:'2.3B views total'},{e:'🌮',n:'Birria Quesatacos',s:85,d:'Consommé dip going viral'},{e:'🍔',n:'Smash Burger',s:87,d:'ASMR cooking resurgence'},{e:'🧀',n:'Cottage Cheese Everything',s:82,d:'Protein hack wave'},{e:'🌯',n:'Viral Wrap Technique',s:79,d:'The fold method trend'},{e:'🥩',n:'Carnivore Ribeye Bowl',s:76,d:'FatSwitch friendly'},{e:'🍰',n:'Protein Cheesecake',s:74,d:'Cottage cheese base'},{e:'🫙',n:'Overnight Oats Layered',s:72,d:'Meal prep aesthetic'},{e:'🥗',n:'Big Mac Salad Dupe',s:70,d:'Fast food swap trend'}],
+  instagram:[{e:'🍮',n:'Skyr Mousse',s:91,d:'Aesthetic high-protein dessert'},{e:'🥭',n:'Açaí Bowl Upgrade',s:85,d:'Bowl trend still strong'},{e:'🐟',n:'Poke Bowl Rainbow',s:83,d:'Color-coded nutrition'},{e:'🫑',n:'Stuffed Bell Peppers',s:80,d:'Meal prep macro trend'},{e:'🥑',n:'Avocado Toast Evolution',s:77,d:'Gen Z reinvention wave'},{e:'🧆',n:'Falafel Power Bowl',s:74,d:'Plant protein push'},{e:'🍓',n:'Yogurt Bark',s:72,d:'Dessert dupe wave'},{e:'🍳',n:'Egg White Breakfast Taco',s:70,d:'Low carb breakfast'},{e:'🥜',n:'PB Protein Balls',s:68,d:'Snack prep content'},{e:'🫐',n:'Blueberry Protein Smoothie',s:65,d:'Morning routine trend'}],
+  youtube:[{e:'🔪',n:'Gordon Ramsay Dupe Recipes',s:88,d:'Educational cooking format'},{e:'🥩',n:'Reverse Sear Steak Tutorial',s:86,d:'Technique deep-dives'},{e:'🍕',n:'Cauliflower Pizza Crust',s:81,d:'Healthy swap tutorials'},{e:'🫕',n:'One-Pot High Protein Meals',s:78,d:'Meal efficiency content'},{e:'🥊',n:'What I Eat — Carnivore',s:76,d:'WIED format resurgence'},{e:'🍗',n:'Air Fryer Chicken 101',s:74,d:'Appliance education'},{e:'🥦',n:'Veggie Prep Like a Chef',s:71,d:'Knife skills content'},{e:'🧠',n:'Gut Health Food Science',s:69,d:'Educational nutrition'},{e:'🛒',n:'Costco Healthy Haul',s:67,d:'Shop with me format'},{e:'📊',n:'Macro Tracking 101',s:65,d:'Fitness crossover content'}],
+  pinterest:[{e:'🎨',n:'Rainbow Meal Prep Board',s:89,d:'Visual meal planning'},{e:'🍱',n:'High Protein Lunch Boxes',s:85,d:'Saves skyrocketing'},{e:'🧁',n:'Protein Dessert Recipes',s:82,d:'Low guilt baking'},{e:'🥗',n:'30-Day Salad Challenge',s:80,d:'Challenge format popular'},{e:'🌿',n:'Anti-Inflammatory Meals',s:78,d:'Wellness food aesthetic'},{e:'🍵',n:'Matcha Everything',s:76,d:'Color + wellness combo'},{e:'📋',n:'Weekly Meal Plan Templates',s:73,d:'Planning aesthetic'},{e:'🫙',n:'Mason Jar Salad Prep',s:71,d:'Visual stacking trend'},{e:'🥕',n:'Carrot Cake Protein Bars',s:68,d:'Snack inspiration'},{e:'🍊',n:'Citrus Zest Dressings',s:65,d:'Bright visual trend'}],
+  reddit:[{e:'🥩',n:'Carnivore 30 Day Results',s:84,d:'r/carnivore community'},{e:'💪',n:'High Protein on a Budget',s:81,d:'r/EatCheapAndHealthy'},{e:'🫙',n:'Fermented Foods Guide',s:78,d:'r/fermentation growth'},{e:'🍳',n:'OMAD What I Eat',s:75,d:'r/intermittentfasting'},{e:'🔬',n:'Food Science Debunked',s:72,d:'r/foodscience'},{e:'🧊',n:'Sous Vide Chicken 101',s:70,d:'r/seriouseats'},{e:'🥜',n:'Nut Butter Tier List',s:67,d:'r/nutrition ranking'},{e:'📦',n:'Protein Bar Blind Test',s:65,d:'r/fitness review thread'},{e:'🫐',n:'Superfood Overrated?',s:62,d:'r/dietetics debate'},{e:'🌾',n:'Gluten Free Life 2026',s:60,d:'r/glutenfree community'}],
+};
+
+const PREDICTOR=[
+  {label:'Next to explode',color:'#a78bfa',badge:'emerging',items:[{e:'🫙',n:'Fermented Honey Garlic',prob:'94%'},{e:'🥩',n:'Carne Seca Tacos',prob:'91%'},{e:'🧊',n:'Clear Ice Cocktails',prob:'88%'},{e:'🥛',n:'Camel Milk Products',prob:'84%'}]},
+  {label:'Rising fast right now',color:'#22d3a0',badge:'rising2',items:[{e:'🫔',n:'Stuffed Naan Wraps',prob:'87%'},{e:'🍵',n:'Ashwagandha Latte',prob:'83%'},{e:'🥥',n:'Coconut Ceviche',prob:'79%'},{e:'🧆',n:'High-Protein Falafel',prob:'76%'}]},
+  {label:'Predicted to explode soon',color:'#f97316',badge:'exploding',items:[{e:'🍫',n:'Pistachio Tiramisu',prob:'96%'},{e:'🌮',n:'Korean BBQ Tacos',prob:'92%'},{e:'🥩',n:'Wagyu Smash Burger',prob:'89%'},{e:'🫐',n:'Blueberry Matcha',prob:'85%'}]},
+  {label:'Trend decay detected',color:'#888',badge:'saturated',items:[{e:'🥑',n:'Avocado Toast (classic)',prob:'92%'},{e:'🥗',n:'Açaí Bowl (basic)',prob:'87%'},{e:'🌶️',n:'Ghost Pepper Challenge',prob:'95%'},{e:'🍋',n:'Lemon Water Detox',prob:'91%'}]},
+];
+
+const STEAL_DATA=[
+  {emoji:'🍫',name:'Dubai Chocolate Bar',views:'2.3B',score:99,platform:'TikTok',improve:['Add protein layer (25g per bar)','Reduce sugar 60% with monk fruit','Create build-your-own kit format','Film the snap in extreme ASMR close-up']},
+  {emoji:'🍦',name:'Protein Ice Cream Bark',views:'890M',score:96,platform:'TikTok',improve:['Add carnivore version (beef tallow base)','Create a flavor variation series','Film in natural morning light','Add calorie comparison overlay on screen']},
+  {emoji:'🌮',name:'Birria Quesatacos',views:'1.1B',score:92,platform:'YouTube',improve:['Halal beef version is urgently needed','Faster 15-min home recipe format','Macro breakdown overlay on screen','Drive-through dupe comparison video']},
+  {emoji:'🥞',name:'Soufflé Pancakes',views:'670M',score:90,platform:'Instagram',improve:['Protein powder version (30g+ per serving)','Fail-proof home recipe needed','Time-lapse of the jiggle effect','Keto flour substitution guide']},
+  {emoji:'🍔',name:'Smash Burger',views:'950M',score:87,platform:'TikTok',improve:['Lean beef version (93% lean)','Burger bowl with no bun format','Egg white bun alternative content','Protein count overlay on screen']},
+  {emoji:'🍜',name:'Tteokbokki Carbonara',views:'540M',score:84,platform:'YouTube',improve:['Lower sodium sauce version needed','Protein rice cakes substitution','Slower step-by-step tutorial format','Meal prep batch cooking version']},
+];
+
+const FF_DB={
+  'big mac':{o:'Big Mac',h:'Healthy Big Mac Bowl',oc:550,hc:310,desc:'93% lean beef on romaine, Greek yogurt special sauce, no bun — same iconic flavour, 240 fewer calories.',steps:['Cook 4oz 93% lean beef with garlic and onion powder','Sauce: 2 tbsp Greek yogurt + mustard + pickle juice + paprika','Serve on romaine with tomato, pickle, shredded onion','Drizzle sauce — skip the bun and save 200 cal']},
+  'crunchwrap supreme':{o:'Crunchwrap Supreme',h:'Protein Crunchwrap',oc:530,hc:280,desc:'Low-carb tortilla, lean turkey, cauliflower queso — same crunch, way more protein.',steps:['Fill low-carb tortilla with ground turkey + taco spice','Cauli queso: blended cauliflower + nutritional yeast + spices','Add fresh pico de gallo and shredded lettuce','Fold and griddle dry until golden and crispy']},
+  'costco chicken bake':{o:'Costco Chicken Bake',h:'Lean Chicken Bake',oc:770,hc:410,desc:'2-ingredient protein dough, packed chicken breast, light Caesar — half the calories.',steps:['Dough: 1 cup Greek yogurt + 1 cup self-raising flour','Fill with diced chicken breast + light Caesar dressing','Add minimal mozzarella for the melt effect','Bake 200°C for 20 min until golden crust forms']},
+  'spicy chicken sandwich':{o:'Spicy Chicken Sandwich',h:'FatSwitch Spicy Chicken',oc:470,hc:250,desc:'Air-fried chicken breast, Greek yogurt sriracha sauce, lettuce wrap instead of brioche bun.',steps:['Marinate chicken breast in buttermilk + hot sauce 1 hour','Coat in almond flour + cayenne + garlic powder','Air fry 200°C for 18 minutes, flip halfway','Serve in lettuce cup with Greek yogurt sriracha mayo']},
+  'loaded fries':{o:'Loaded Fries',h:'Loaded Cauliflower Fries',oc:780,hc:290,desc:'Roasted cauliflower, lean beef chili, Greek yogurt sour cream, fresh salsa.',steps:['Roast cauliflower florets with oil spray at 220°C 25 min','Make lean beef chili (93% beef + kidney beans + spices)','Top cauliflower with chili, Greek yogurt, jalapeño slices','Finish with fresh pico de gallo and squeeze of lime']},
+  'philly cheesesteak':{o:'Philly Cheesesteak',h:'Lean Philly Protein Bowl',oc:680,hc:340,desc:'Thinly sliced lean sirloin, sautéed peppers and onions, light provolone over cauliflower rice.',steps:['Slice lean sirloin paper-thin — freeze 20 minutes first','Sear fast in cast iron with peppers and onions','Layer over cauliflower rice as your carb-free base','Top with 1 slice provolone and Worcestershire splash']},
+  'mcflurry':{o:'McFlurry',h:'Protein Ice Cream Swirl',oc:510,hc:180,desc:'Blended frozen Greek yogurt + protein powder with mix-ins. Same creamy swirl, 4x the protein.',steps:['Freeze Greek yogurt in ice cube tray overnight','Blend frozen cubes with vanilla protein powder until smooth','Fold in crushed mix-ins (small portion only)','Serve immediately — it melts fast like the original']},
+  'chick-fil-a sandwich':{o:'Chick-fil-A Sandwich',h:'FatSwitch Pickle Chicken',oc:440,hc:220,desc:'Baked pickle-brined chicken breast, honey mustard yogurt sauce, in a fresh lettuce wrap.',steps:['Brine chicken breast in pickle juice + salt 4 hours','Coat in seasoned almond flour + paprika + garlic','Bake 210°C for 22 minutes until golden and crispy','Serve in lettuce cup with yogurt honey mustard sauce']},
+};
+
+const CR_DEMO=[
+  {t:'TikTok hook',i:'ti-brand-tiktok',b:"POV: you're eating ice cream bark at 11pm with zero guilt. 180 calories. 22g protein. I'm not going back to real ice cream. Recipe in 60 seconds ↓"},
+  {t:'Instagram caption',i:'ti-brand-instagram',b:"The dessert that broke my brain. 🍦 Protein Ice Cream Bark — 180 cal, 22g protein, tastes indulgent. Full recipe saved in bio. Save this for tonight. #proteinrecipes #healthydessert #fatswitch #proteinsnack #icecream"},
+  {t:'YouTube Shorts script',i:'ti-brand-youtube',b:"Hook: 'This is the only dessert I've eaten every day for 3 months.' Step 1: Greek yogurt + protein powder + PB. Step 2: Spread flat, top with berries. Step 3: Freeze 2 hours. Result: 22g protein disguised as dessert. Like if you're making this tonight."},
+  {t:'Blog intro',i:'ti-article',b:"If you've been searching for a high-protein dessert that actually tastes like a treat, Protein Ice Cream Bark might be the recipe that changes everything. At just 180 calories and 22 grams of protein per serving, this viral TikTok trend is the FatSwitch upgrade your freezer needs."},
+  {t:'AI video prompt',i:'ti-wand',b:"Cinematic overhead shot of hands breaking Protein Ice Cream Bark into shards on white marble surface. Slow-motion crumble effect. Natural daylight from left. Colour grade: warm cream and pale lavender tones. ASMR crunch sound design. Cut to minimal ingredients laid flat. Editorial food photography in motion."},
+  {t:'Affiliate review hook',i:'ti-tag',b:"Two things make this recipe: a silicone baking mat (cleaner release than parchment) and a protein powder that actually tastes like vanilla. I've tested 6 brands — only 2 didn't taste chalky. Full breakdown with affiliate links below."},
+];
+
+// ── STATE ────────────────────────────────────────────────────────────────
+let activeCat='', activeTab='all';
+let apiKey=localStorage.getItem('fs_api_key')||'';
+
+// ── API KEY ──────────────────────────────────────────────────────────────
+function saveKey(){
+  const k=document.getElementById('sb-api-key').value.trim();
+  if(!k){showStatus('Enter a valid key','#ef4444');return;}
+  localStorage.setItem('fs_api_key',k);
+  apiKey=k;
+  showStatus('✓ Key saved — AI features active!','#22d3a0');
+  setTimeout(()=>showStatus('',''),3000);
+}
+function showStatus(msg,color){
+  const el=document.getElementById('sb-status');
+  el.textContent=msg; el.style.color=color;
+}
+
+// ── NAV ──────────────────────────────────────────────────────────────────
+function go(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  if(el) el.classList.add('on');
+}
+
+// ── TREND FEED ───────────────────────────────────────────────────────────
+function setCat(cat,el){document.querySelectorAll('#cat-chips .chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');activeCat=cat;renderFeed();}
+function setFeedTab(tab,el){document.querySelectorAll('#pg-trends .tab').forEach(t=>t.classList.remove('on'));el.classList.add('on');activeTab=tab;renderFeed();}
+function renderFeed(){
+  const s=document.getElementById('fsearch').value.toLowerCase();
+  const co=document.getElementById('fcountry').value;
+  const st=document.getElementById('fstatus').value;
+  const pl=document.getElementById('fplatform').value;
+  let list=FOODS.filter(f=>{
+    if(s&&!f.name.toLowerCase().includes(s)&&!f.cat.toLowerCase().includes(s))return false;
+    if(co&&f.country!==co)return false;
+    if(st&&f.status!==st)return false;
+    if(pl&&!f.platforms.includes(pl))return false;
+    if(activeCat&&f.cat!==activeCat)return false;
+    if(activeTab==='exploding'&&f.status!=='Exploding')return false;
+    if(activeTab==='hot'&&f.status!=='Hot')return false;
+    if(activeTab==='rising'&&f.status!=='Rising')return false;
+    return true;
+  });
+  document.getElementById('exp-count').textContent=FOODS.filter(f=>f.status==='Exploding').length;
+  document.getElementById('feed-grid').innerHTML=list.map(f=>`
+    <div class="tc${f.status==='Exploding'?' exp':''}" onclick="selCard(${FOODS.indexOf(f)})">
+      <div class="tc-top"><span class="tc-emoji">${f.emoji}</span><span class="sbadge ${f.status.toLowerCase()}">${f.status}</span></div>
+      <div class="tc-name">${f.name}</div>
+      <div class="tc-meta">${f.flag} ${f.country} · ${f.cat}</div>
+      <div class="sc-row"><div class="sc">Trend <span>${f.trend}</span></div><div class="sc">Growth <span>${f.growth}</span></div><div class="sc">Viral <span>${f.viral}</span></div></div>
+      <div class="pbar"><div class="pfill" style="width:${f.trend}%"></div></div>
+      <div class="plbl"><span>Trend score</span><span>${f.trend}/100</span></div>
+      <div class="ptags">${f.platforms.map(p=>`<span class="ptag">${p}</span>`).join('')}</div>
+    </div>`).join('');
+}
+
+function selCard(idx){
+  const f=FOODS[idx];
+  const saved=f.cals-f.sw;
+  document.getElementById('no-sel').style.display='none';
+  const dc=document.getElementById('detail-card');
+  dc.classList.add('on');
+  dc.innerHTML=`
+    <div class="dc-emoji">${f.emoji}</div>
+    <div class="dc-name">${f.name}</div>
+    <div class="dc-meta">${f.flag} ${f.country} · <span class="sbadge ${f.status.toLowerCase()}">${f.status}</span></div>
+    <div class="sc3">
+      <div class="sc3-item"><div class="sc3-val" style="color:var(--a)">${f.trend}</div><div class="sc3-lbl">Trend</div></div>
+      <div class="sc3-item"><div class="sc3-val" style="color:var(--a2)">${f.growth}</div><div class="sc3-lbl">Growth</div></div>
+      <div class="sc3-item"><div class="sc3-val" style="color:#a78bfa">${f.viral}</div><div class="sc3-lbl">Viral</div></div>
+    </div>
+    <div class="why-box"><div class="box-h">Why it's viral</div>${f.why.map(w=>`<span class="why-tag">✦ ${w}</span>`).join('')}</div>
+    <div class="fs-box">
+      <div class="fs-h">⚡ FatSwitch Recipe</div>
+      <div class="cal-row"><div class="cal-b"><div class="cal-n r">${f.cals}</div><div class="cal-lbl">Original cal</div></div><div class="cal-arrow">→</div><div class="cal-b"><div class="cal-n g">${f.sw}</div><div class="cal-lbl">FatSwitch cal</div></div></div>
+      <div class="saved-pill">Save ${saved} calories per serving</div>
+      <div class="box-h" style="margin-top:12px">Steps</div>
+      <div class="steps-list">${f.recipe.map((s,i)=>`<div class="step-r"><div class="step-n">${i+1}</div><div class="step-t">${s}</div></div>`).join('')}</div>
+    </div>
+    <div class="box-h">Generate content</div>
+    <div class="gen-grid">
+      <button class="gen-btn" onclick="genQuick('tiktok','${f.name.replace(/'/g,"\\'")}')"><i class="ti ti-brand-tiktok"></i>TikTok script</button>
+      <button class="gen-btn" onclick="genQuick('instagram','${f.name.replace(/'/g,"\\'")}')"><i class="ti ti-brand-instagram"></i>IG caption</button>
+      <button class="gen-btn" onclick="genQuick('youtube','${f.name.replace(/'/g,"\\'")}')"><i class="ti ti-brand-youtube"></i>YouTube short</button>
+      <button class="gen-btn" onclick="genQuick('blog','${f.name.replace(/'/g,"\\'")}')"><i class="ti ti-article"></i>Blog intro</button>
+      <button class="gen-btn" onclick="genQuick('video','${f.name.replace(/'/g,"\\'")}')"><i class="ti ti-wand"></i>AI video prompt</button>
+      <button class="gen-btn" onclick="genQuick('affiliate','${f.name.replace(/'/g,"\\'")}')"><i class="ti ti-tag"></i>Affiliate hook</button>
+    </div>
+    <div class="ai-loading" id="dc-load"><i class="ti ti-robot" style="font-size:15px"></i> Generating<span class="dots"><span>.</span><span>.</span><span>.</span></span></div>
+    <div class="ai-out" id="dc-out"></div>`;
+}
+
+async function genQuick(type,food){
+  const k=apiKey||localStorage.getItem('fs_api_key')||'';
+  if(!k){alert('Paste your Anthropic API key in the sidebar (bottom left) and click Save.');return;}
+  const l=document.getElementById('dc-load'),o=document.getElementById('dc-out');
+  l.classList.add('on');o.classList.remove('on');
+  const P={tiktok:`Write a punchy 45-second TikTok script for a viral video about a healthier FatSwitch version of "${food}". Include hook, 3 key points, CTA.`,instagram:`Write an Instagram caption for healthy "${food}". Include 5 hashtags, emojis, and a save prompt.`,youtube:`Write a 60-second YouTube Shorts script for healthy "${food}". Hook + steps + subscribe CTA.`,blog:`Write a 100-word SEO blog intro for "Healthy ${food} Recipe That Saves 300 Calories".`,video:`Write an AI video generation prompt for cinematic food video of healthy "${food}". Include camera angles, lighting, colour grade, mood.`,affiliate:`Write an 80-word affiliate review hook for kitchen tools to make healthy "${food}". Suggest 2 product types.`};
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:400,system:'You are a viral food content expert for FatSwitch platform. Be specific, energetic, and platform-native.',messages:[{role:'user',content:P[type]}]})});
+    const d=await res.json();
+    if(d.error){o.textContent='API Error: '+d.error.message;}
+    else{o.textContent=d.content?.[0]?.text||'No content returned.';}
+  }catch(e){o.textContent='Request failed: '+e.message;}
+  l.classList.remove('on');o.classList.add('on');
+}
+
+// ── MAP ──────────────────────────────────────────────────────────────────
+function renderMap(){
+  document.getElementById('map-grid').innerHTML=COUNTRIES.map((c,i)=>`
+    <div class="mc" onclick="showMapDetail(${i},this)">
+      <div class="mc-flag">${c.flag}</div>
+      <div class="mc-country">${c.country}</div>
+      <div class="mc-top">Top: ${c.foods[0].n}</div>
+      <div class="mc-count">${c.foods.length} trending foods →</div>
+    </div>`).join('');
+}
+function showMapDetail(i,el){
+  document.querySelectorAll('.mc').forEach(m=>m.classList.remove('sel'));el.classList.add('sel');
+  const c=COUNTRIES[i],d=document.getElementById('map-detail');
+  d.style.display='block';
+  document.getElementById('map-d-h').innerHTML=`${c.flag} ${c.country} — Top viral foods`;
+  document.getElementById('map-d-list').innerHTML=c.foods.map((f,j)=>`
+    <div class="map-food-row"><div class="mfr-left"><span class="mfr-num">${j+1}</span><span class="mfr-emoji">${f.e}</span><div><div class="mfr-name">${f.n}</div><div class="mfr-cat">${f.c}</div></div></div><div class="mfr-score">${f.s}</div></div>`).join('');
+}
+
+// ── USA HUB ──────────────────────────────────────────────────────────────
+function renderUSA(tab){
+  const data=USA_FEEDS[tab]||USA_FEEDS.tiktok;
+  document.getElementById('usa-list').innerHTML=data.map((f,i)=>`
+    <div class="usa-item"><span class="usa-rank">${i+1}</span><span class="usa-emoji">${f.e}</span><div class="usa-info"><div class="usa-name">${f.n}</div><div class="usa-sub">${f.d}</div></div><div class="usa-right"><span class="usa-score">${f.s}</span><div class="trend-mini">${[40,55,60,70,80,f.s].map(h=>`<div class="tbar" style="height:${Math.round(h*18/100)}px"></div>`).join('')}</div></div></div>`).join('');
+}
+function setUsaTab(tab,el){document.querySelectorAll('.usa-tab').forEach(t=>t.classList.remove('on'));el.classList.add('on');renderUSA(tab);}
+
+// ── PREDICTOR ────────────────────────────────────────────────────────────
+function renderPredictor(){
+  document.getElementById('predictor-grid').innerHTML=PREDICTOR.map(g=>`
+    <div class="pred-card"><div class="pred-lbl" style="color:${g.color}">${g.label.toUpperCase()}</div>${g.items.map(f=>`<div class="pred-item"><div class="pred-left"><span class="pred-emoji">${f.e}</span><span class="pred-name">${f.n}</span></div><span class="pred-badge ${g.badge}">${f.prob}</span></div>`).join('')}</div>`).join('');
+}
+
+// ── FAST FOOD ────────────────────────────────────────────────────────────
+function doFF(){
+  const val=document.getElementById('ff-inp').value.trim().toLowerCase();
+  const match=Object.keys(FF_DB).find(k=>val.includes(k));
+  if(match){showFF(FF_DB[match]);return;}
+  const k=apiKey||localStorage.getItem('fs_api_key')||'';
+  if(k){doFFApi(val,k);}
+  else{document.getElementById('ff-result').innerHTML=`<div style="color:var(--tm);font-size:13px;padding:18px;background:var(--s);border-radius:var(--r);border:1px solid var(--bd)">No preset for "<strong style="color:var(--t)">${val}</strong>". Paste your API key in the sidebar to convert any item with AI.</div>`;}
+}
+async function doFFApi(val,k){
+  document.getElementById('ff-result').innerHTML=`<div class="ai-loading on" style="padding:20px"><i class="ti ti-robot" style="font-size:16px"></i> Converting "${val}"<span class="dots"><span>.</span><span>.</span><span>.</span></span></div>`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:500,system:'You are a FatSwitch nutrition expert. Return ONLY valid JSON, no markdown.',messages:[{role:'user',content:`Convert "${val}" to a healthier FatSwitch homemade version. Return JSON: {"o":"original name","h":"healthy version name","oc":number,"hc":number,"desc":"short description","steps":["step1","step2","step3","step4"]}`}]})});
+    const d=await res.json();
+    if(d.error){document.getElementById('ff-result').innerHTML=`<div style="color:#ef4444;font-size:13px;padding:16px">API Error: ${d.error.message}</div>`;return;}
+    let txt=d.content?.[0]?.text||'{}';
+    txt=txt.replace(/```json|```/g,'').trim();
+    showFF(JSON.parse(txt));
+  }catch(e){document.getElementById('ff-result').innerHTML=`<div style="color:#ef4444;font-size:13px;padding:16px">Failed: ${e.message}</div>`;}
+}
+function showFF(r){
+  const saved=r.oc-r.hc;
+  document.getElementById('ff-result').innerHTML=`
+    <div class="ff-rg">
+      <div class="ffc"><div class="ffc-lbl">Original</div><div class="ffc-name" style="color:#ef4444">${r.o}</div><div class="ffc-cal" style="color:#ef4444">${r.oc} cal</div><div class="ffc-desc">Standard fast food version — high sodium, processed carbs, excess fat.</div></div>
+      <div class="ff-arrow">→</div>
+      <div class="ffc healthy"><div class="ffc-lbl" style="color:var(--a)">FatSwitch version</div><div class="ffc-name" style="color:var(--a)">${r.h}</div><div class="ffc-cal" style="color:var(--a)">${r.hc} cal</div><div class="ffc-desc">${r.desc}</div><div class="steps-list">${(r.steps||[]).map((s,i)=>`<div class="step-r"><div class="step-n">${i+1}</div><div class="step-t" style="font-size:11px">${s}</div></div>`).join('')}</div></div>
+      <div class="ff-savings">You save ${saved} calories — that's ${Math.round(saved/7)} kg of fat per month if swapped weekly</div>
+    </div>`;
+}
+function quickFF(name){document.getElementById('ff-inp').value=name;doFF();}
+
+// ── CREATOR ──────────────────────────────────────────────────────────────
+async function doCreator(){
+  const food=document.getElementById('cr-inp').value.trim();
+  if(!food)return;
+  const l=document.getElementById('cr-load'),g=document.getElementById('cr-grid');
+  l.classList.add('on');g.style.display='none';
+  if(food.toLowerCase().includes('protein ice cream')){
+    setTimeout(()=>{renderCrGrid(CR_DEMO);l.classList.remove('on');g.style.display='grid';},700);
+    return;
+  }
+  const k=apiKey||localStorage.getItem('fs_api_key')||'';
+  if(!k){l.classList.remove('on');g.innerHTML='<div style="color:var(--tm);font-size:12px;grid-column:1/-1;padding:10px">Paste your Anthropic API key in the sidebar to generate content for any food.</div>';g.style.display='grid';return;}
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:'Return ONLY a valid JSON array of exactly 6 objects. No markdown. Schema: [{t:"type label",i:"tabler icon class e.g. ti-brand-tiktok",b:"content text"}]',messages:[{role:'user',content:`Generate 6 creator content pieces for healthy FatSwitch version of "${food}": TikTok hook, Instagram caption, YouTube Shorts script, Blog intro (100 words), AI video prompt, Affiliate review hook.`}]})});
+    const d=await res.json();
+    if(d.error){g.innerHTML=`<div style="color:#ef4444;font-size:12px;grid-column:1/-1;padding:10px">API Error: ${d.error.message}</div>`;g.style.display='grid';l.classList.remove('on');return;}
+    let txt=d.content?.[0]?.text||'[]';
+    txt=txt.replace(/```json|```/g,'').trim();
+    renderCrGrid(JSON.parse(txt));
+  }catch(e){g.innerHTML=`<div style="color:#ef4444;font-size:12px;grid-column:1/-1;padding:10px">Failed: ${e.message}</div>`;g.style.display='grid';}
+  l.classList.remove('on');g.style.display='grid';
+}
+function renderCrGrid(items){
+  document.getElementById('cr-grid').innerHTML=items.map(item=>`
+    <div class="cr-card">
+      <div class="cr-card-h"><i class="ti ${item.i||'ti-pencil'}"></i><span>${item.t||'Content'}</span></div>
+      <div class="cr-card-body">${(item.b||item.content||'').replace(/</g,'&lt;')}</div>
+      <div class="cr-copy"><button class="copy-btn" onclick="copyTxt(this,'${encodeURIComponent(item.b||item.content||'')}')"><i class="ti ti-copy" style="font-size:11px"></i> Copy</button></div>
+    </div>`).join('');
+}
+function copyTxt(btn,enc){navigator.clipboard.writeText(decodeURIComponent(enc)).then(()=>{btn.textContent='Copied!';setTimeout(()=>{btn.innerHTML='<i class="ti ti-copy" style="font-size:11px"></i> Copy';},2000);});}
+function quickCr(name){document.getElementById('cr-inp').value=name;doCreator();}
+
+// ── STEAL ────────────────────────────────────────────────────────────────
+function renderSteal(){
+  document.getElementById('steal-grid').innerHTML=STEAL_DATA.map(f=>`
+    <div class="tc">
+      <div class="tc-top"><span class="tc-emoji">${f.emoji}</span><span class="sbadge exploding">${f.platform}</span></div>
+      <div class="tc-name">${f.name}</div>
+      <div class="tc-meta">${f.views} views estimated · Viral score ${f.score}</div>
+      <div style="margin-top:10px"><div class="box-h" style="margin-bottom:6px">How to outcompete</div>${f.improve.map(s=>`<div class="improve-row"><span>→</span>${s}</div>`).join('')}</div>
+    </div>`).join('');
+}
+
+// ── ADMIN ────────────────────────────────────────────────────────────────
+function renderAdmin(){
+  document.getElementById('admin-tbody').innerHTML=FOODS.slice(0,8).map(f=>`
+    <tr>
+      <td>${f.emoji} ${f.name}</td>
+      <td><span class="sbadge ${f.status.toLowerCase()}">${f.status}</span></td>
+      <td style="color:var(--a);font-weight:700">${f.trend}</td>
+      <td>${f.flag} ${f.country}</td>
+      <td><div class="atbl-acts"><button class="atbl-btn"><i class="ti ti-edit" style="font-size:11px"></i> Edit</button><button class="atbl-btn del"><i class="ti ti-trash" style="font-size:11px"></i></button></div></td>
+    </tr>`).join('');
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────
+(function(){
+  renderFeed();
+  renderMap();
+  renderUSA('tiktok');
+  renderPredictor();
+  renderSteal();
+  renderAdmin();
+  showFF(FF_DB['big mac']);
+  if(apiKey){
+    document.getElementById('sb-api-key').value=apiKey;
+    showStatus('✓ Key loaded','#22d3a0');
+    setTimeout(()=>showStatus('',''),2000);
+  }
+})();
+</script>
+</body>
+</html>
